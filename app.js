@@ -62,3 +62,14 @@ wss.on('headers', (headers, req) => {
 wss.on('listening', (ws) => {
     console.log('🐙 listening'.bold)
 })
+
+setInterval(() => {
+    wss.clients.forEach((ws) => {
+        ws.ping((err) => {
+            console.log('🐒 ping.callback'.bold)
+            if (err) {
+                console.error(err)
+            }
+        })
+    })
+}, 10000)
