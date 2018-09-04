@@ -1,41 +1,41 @@
+const colors = require('colors')
+
 const WebSocket = require('ws')
 
-const ws = new WebSocket('wss://stream.binance.com:9443/ws/ethusdt@trade')
+const ws = new WebSocket('wss://stream.binance.com:9443/ws/ethusdt@trades')
 
-ws.on('close', (code, string) => {
-    console.log('close')
-    console.log(code, string)
+ws.on('close', (code, reason) => {
+    console.log('🐒 close'.bold)
+    console.log(code, reason)
 })
 
 ws.on('error', (err) => {
-    console.log('error')
+    console.log('🐒 error'.bold)
     console.log(err)
 })
 
-ws.on('upgrade', (request) => {
-    console.log('upgrade')
-    //onsole.log(request)
+ws.on('upgrade', (req) => {
+    console.log('🐒 upgrade'.bold)
 })
 
 ws.on('message', (data) => {
-    //console.log('message')
+    console.log('🐒 message'.bold)
 })
 
 ws.on('open', () => {
-    console.log('open')
+    console.log('🐒 open'.bold)
+    console.log(new Date())
 })
 
 ws.on('ping', (data) => {
-    console.log('ping')
-    console.log(data.length)
-    console.log(data.toString('hex'))
-    console.log(data.toString())
+    console.log('🐒 ping'.bold)
+    console.log(new Date())
 })
 
 ws.on('pong', (data) => {
-    console.log('pong')
+    console.log('🐒 pong'.bold)
 })
 
-ws.on('unexpected-response', (request, response) => {
-    console.log('unexpected-response')
+ws.on('unexpected-response', (req, res) => {
+    console.log('🐒 unexpected-response'.bold)
 })
