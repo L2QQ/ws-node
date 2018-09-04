@@ -1,75 +1,71 @@
 const colors = require('colors')
 
 const WebSocket = require('ws')
+
+function verifyClient(info, callback) {
+    console.log('🐙 verifyClient'.bold)
+    callback(true)
+}
+
 const wss = new WebSocket.Server({
     port: 9050,
-    verifyClient: (info) => {
-        console.log('🐙 verifyClient'.bold)
-        return true
-    }
-}, () => {
-    console.log('🐙 callback'.bold)
+    verifyClient
 })
+
+//const CLOSING_TIMEOUT = 24 * 60 * 60 * 1000     // 24 hours
+//const PING_INTERVAL = 3 * 60 * 1000     // 3 minutes
+
+const CLOSING_TIMEOUT = 10000
+const PING_INTERVAL = 1000
 
 wss.on('connection', (ws, req) => {
     console.log('🐙 connection'.bold)
+    console.log(req.url)
 
-    ws.on('close', (code, reason) => {
-        console.log('🐒 close'.bold)
-        console.log(code, reason)
-    })
+    ws.createdAt = new Date()
+    setupPinging(ws)
+    setupAutoClosing(ws)
 
-    ws.on('error', (err) => {
-        console.log('🐒 error'.bold)
-        console.log(err)
-    })
-
-    ws.on('upgrade', (req) => {
-        console.log('🐒 upgrade'.bold)
-    })
-
-    ws.on('message', (data) => {
-        console.log('🐒 message'.bold)
-    })
-
-    ws.on('open', () => {
-        console.log('🐒 open'.bold)
-    })
-
-    ws.on('ping', (data) => {
-        console.log('🐒 ping'.bold)
-    })
-
-    ws.on('pong', (data) => {
-        console.log('🐒 pong'.bold)
-    })
-
-    ws.on('unexpected-response', (req, res) => {
-        console.log('🐒 unexpected-response'.bold)
-    })
-})
-
-wss.on('error', (err) => {
-    console.log('🐙 error'.bold)
-    console.error(err)
-})
-
-wss.on('headers', (headers, req) => {
-    console.log('🐙 headers'.bold)
-    console.log(headers)
+    console.log(req.connection.remoteAddress)
+    console.log(req.headers)
 })
 
 wss.on('listening', (ws) => {
     console.log('🐙 listening'.bold)
 })
 
+/**
+ * Auto-closing
+ */
+
+function setupAutoClosing(ws) {
+    ws.closingTimeout = setTimeout(() => {
+        ws.close(4000, '24h auto closing')
+    }, CLOSING_TIMEOUT)
+
+    ws.on('close', () => {
+        clearTimeout(ws.closingTimeout)
+    })
+}
+
+/**
+ * Ping
+ */
+
+function setupPinging(ws) {
+    ws.isAlive = true
+    ws.on('pong', () => {
+        ws.isAlive = true
+    })
+}
+
 setInterval(() => {
     wss.clients.forEach((ws) => {
-        ws.ping((err) => {
-            console.log('🐒 ping.callback'.bold)
-            if (err) {
-                console.error(err)
-            }
-        })
+        if (!ws.isAlive) {
+            return ws.terminate()
+        }
+
+        ws.isAlive = false
+        ws.ping()
     })
-}, 10000)
+}, PING_INTERVAL)
