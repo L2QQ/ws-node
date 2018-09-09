@@ -9,8 +9,12 @@ namespace Rabbit {
         price: string;
         quantity: string;
     }
+
+    export class Order {
+        
+    }
 }
 
 namespace Commander {
-    
+
 }

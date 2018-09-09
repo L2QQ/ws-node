@@ -5,7 +5,7 @@ const WebSocket = require('ws')
 function connect() {
     console.log('Try connect')
 
-    const ws = new WebSocket('wss://stream.binance.com:9443/ws/!miniTicker@arr')
+    const ws = new WebSocket('wss://stream.binance.com:9443/ws/ethusdt@ticker')
 
     ws.on('close', (code, reason) => {
         console.log('🐒 close'.bold)

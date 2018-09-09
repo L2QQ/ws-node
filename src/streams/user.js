@@ -1,6 +1,17 @@
-// User changed
-// Updated Order
+const Big = require('big.js')
+const jayson = require('jayson/promise')
+const amqp = require('amqplib')
 
+/*
+Wait user event
+Take valid listen key
+Load user
+send user to listen key
+
+Wait order
+Take valid listen key
+Send order to listen key
+*/
 
 // https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md
 module.exports = class UserStream {
@@ -9,7 +20,7 @@ module.exports = class UserStream {
     }
 
     // https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#account-update
-    updateAccount(listenKey) {
+    publishAccountUpdate(listenKey) {
         this.broker.publish(listenKey, {
             e: 'outboundAccountInfo',
             E: Date.now(),
@@ -32,7 +43,7 @@ module.exports = class UserStream {
     }
 
     // https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#order-update
-    updateOrder(listenKey) {
+    publishOrderUpdate(listenKey) {
         this.broker.publish(listenKey, {
             e: 'executionReport',
             E: Date.now(),
@@ -65,5 +76,9 @@ module.exports = class UserStream {
             O: Date.now(),
             Z: '0'
         })
+    }
+
+    account(userId) {
+
     }
 }
