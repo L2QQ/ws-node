@@ -1,14 +1,31 @@
 require('colors')
 console.log('🐙 WS Server'.bold)
 
-const Commander = require('./src/services/commander')
 const { Broker, Dealer } = require('./src/streaming')
 const streams = require('./src/streams')
-const Rabbit = require('./src/services/rabbit')
+
+const Commander = require('../commander-node/src/services/wrappers/commander')
+const Market = require('../commander-node/src/services/wrappers/market')
+const Account = require('../commander-node/src/services/wrappers/account')
+const UDS = require('../commander-node/src/services/wrappers/uds')
+const Ticker = require('../commander-node/src/services/wrappers/ticker')
+const OHLCV = require('../commander-node/src/services/wrappers/ohlcv')
+
+const Rabbit = require('../commander-node/src/services/rabbit')
 
 const commander = new Commander(parseInt(process.env.COMMANDER_PORT) || 9040)
+commander.on('config', (config) => {
+    console.log('Config updated'.cyan)
+
+    commander.services.account = new Account(config.services.account.port)
+    commander.services.market = new Market(config.services.market.port)
+    commander.services.uds = new UDS(config.services.uds.port)
+    commander.services.ticker = new Ticker(config.services.ticker.port)
+    commander.services.ohlcv = new OHLCV(config.services.ohlcv.port)
+})
+
 commander.once('config', (config) => {
-    console.log('Took config'.red)
+    console.log('Took config once'.red)
 
     const broker = new Broker()
     const rabbit = new Rabbit()
