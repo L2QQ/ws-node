@@ -1,2 +1,1 @@
-# ws-node
-WS Streaming
+# WS Streaming API
