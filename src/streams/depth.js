@@ -12,7 +12,7 @@ module.exports = class DepthStream {
     onTick() {
         this.commander.config().then((config) => {
             config.markets.forEach((market) => {
-                this.commander.markets.depth(market.symbol).then((depth) => {
+                this.commander.services.market.depth(market.symbol).then((depth) => {
                     this.publish(market, depth)
                 })
             })

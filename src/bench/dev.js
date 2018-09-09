@@ -20,8 +20,9 @@ ws.on('upgrade', (req) => {
 
 ws.on('message', (data) => {
     console.log('🐒 message'.bold)
-    console.log(data)
-    console.log(typeof data)
+    const json = JSON.parse(data)
+    console.log(json.data)
+    //console.log(typeof data)
 })
 
 ws.on('open', () => {

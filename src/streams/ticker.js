@@ -9,14 +9,14 @@ module.exports = class TickerStream {
         this.lastTinyFullTickers = {}
 
         setInterval(() => {
-            this.tick()
+            this.onTick()
         }, 1000)
     }
 
-    tick() {
+    onTick() {
         this.commander.config().then((config) => {
             Promise.all(config.markets.map((market) => {
-                return this.commander.tickers.ticker(market.symbol).then((ticker) => {
+                return this.commander.services.ticker.ticker(market.symbol).then((ticker) => {
                     const mini = this.miniTicker(market, ticker)
                     const full = this.fullTicker(market, ticker)
                     this.publishMiniTicker(mini)

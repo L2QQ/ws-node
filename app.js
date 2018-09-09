@@ -8,16 +8,16 @@ const Rabbit = require('./src/services/rabbit')
 
 const commander = new Commander(parseInt(process.env.COMMANDER_PORT) || 9040)
 commander.once('config', (config) => {
-    console.log('Took config')
+    console.log('Took config'.red)
 
     const broker = new Broker()
     const rabbit = new Rabbit()
 
-    //new streams.Depth(broker, commander)
-    //new streams.Trade(broker, commander, rabbit)
-    //new streams.Ticker(broker, commander)
+    new streams.Depth(broker, commander)
+    new streams.Trade(broker, commander, rabbit)
+    new streams.Ticker(broker, commander)
     new streams.Kline(broker, commander)
-    //new streams.User(broker, commander, rabbit)
+    new streams.User(broker, commander, rabbit)
 
     const dealer = new Dealer(broker, {
         port: parseInt(process.env.PORT) || 9050

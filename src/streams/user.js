@@ -6,13 +6,12 @@ module.exports = class UserStream {
         this.broker = broker
         this.commander = commander
         this.rabbit = rabbit
-
         this.rabbit.on('order', this.onOrder.bind(this))
         this.rabbit.on('account', this.onAccount.bind(this))
     }
 
     onOrder(order) {
-        this.commander.uds.listenKeyForUserId(order.userId).then((listenKey) => {
+        this.commander.services.uds.listenKey(order.userId).then((listenKey) => {
             if (listenKey) {
                 this.publishOrderUpdate(listenKey, order)
             }
@@ -20,9 +19,9 @@ module.exports = class UserStream {
     }
 
     onAccount(account) {
-        this.commander.uds.listenKeyForUserId(account.id).then((listenKey) => {
+        this.commander.services.uds.listenKey(account.id).then((listenKey) => {
             if (listenKey) {
-                this.commander.accounts.account(account.id).then((account) => {
+                this.commander.services.account.account(account.id).then((account) => {
                     this.publishAccountUpdate(listenKey, account)
                 })
             }
@@ -34,21 +33,19 @@ module.exports = class UserStream {
         this.broker.publish(listenKey, {
             e: 'outboundAccountInfo',
             E: Date.now(),
-            m: 0,
-            t: 0,
-            b: 0,
-            s: 0,
-            T: true,
-            W: true,
-            D: true,
-            u: Date.now(),
-            B: [
-                {
-                    a: 'LTC',
-                    f: '0.0',
-                    l: '0.0'
-                }
-            ]
+            m: account.makerCommission,
+            t: account.takerCommission,
+            b: account.buyerCommission,
+            s: account.sellerCommission,
+            T: account.canTrade,
+            W: account.canWithdraw,
+            D: account.canDeposit,
+            u: account.updateTime,
+            B: account.balances.map(b => ({
+                a: b.asset,
+                f: Big(b.free).toFixed(8),
+                l: Big(b.locked).toFixed(8)
+            }))
         })
     }
 

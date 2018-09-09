@@ -19,8 +19,20 @@ namespace Rabbit {
     }
 }
 
-namespace Commander {
+namespace Services {
     export class Depth {
+        lastUpdateId: string
+        bids: [[string, string]]
+        asks: [[string, string]]
+    }
 
+    export class Trade {
+        id: number;
+        makerOrderId: number;
+        takerOrderId: number;
+        isBuyerMaker: boolean;
+        time: number;
+        price: string;
+        quantity: string;
     }
 }
