@@ -1,38 +1,21 @@
 const Big = require('big.js')
-const jayson = require('jayson/promise')
 
 module.exports = class DepthStream {
     constructor(broker, commander) {
         this.broker = broker
         this.commander = commander
-        this.start()
-    }
-
-    start() {
-        this.interval = setInterval(() => {
-            this.tick()
+        setInterval(() => {
+            this.onTick()
         }, 1000)
     }
 
-    tick() {
+    onTick() {
         this.commander.config().then((config) => {
             config.markets.forEach((market) => {
-                this.depth(market.symbol, config.depth.port).then((depth) => {
+                this.commander.markets.depth(market.symbol).then((depth) => {
                     this.publish(market, depth)
-                }).catch((err) => {
-                    console.error(err)
                 })
             })
-        })
-    }
-
-    depth(symbol, port) {
-        const client = jayson.client.http(`http://localhost:${port}`)
-        return client.request('depth', { symbol: symbol }).then((res) => {
-            if (res.error) {
-                throw res.error
-            }
-            return res.result
         })
     }
 

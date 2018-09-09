@@ -1,21 +1,28 @@
+require('colors')
+console.log('🐙 WS Server'.bold)
+
+const Commander = require('./src/services/commander')
 const { Broker, Dealer } = require('./src/streaming')
 const streams = require('./src/streams')
-const Commander = require('./src/commander')
-const Rabbit = require('./src/rabbit')
+const Rabbit = require('./src/services/rabbit')
 
-const broker = new Broker()
+const commander = new Commander(parseInt(process.env.COMMANDER_PORT) || 9040)
+commander.once('config', (config) => {
+    console.log('Took config')
 
-const commander = new Commander(9040)
-const rabbit = new Rabbit()
+    const broker = new Broker()
+    const rabbit = new Rabbit()
 
-new streams.Depth(broker, commander)
-new streams.Trade(broker, commander, rabbit)
-new streams.Ticker(broker, commander)
-new streams.Kline(broker, commander)
-new streams.User(broker, commander, rabbit)
+    //new streams.Depth(broker, commander)
+    //new streams.Trade(broker, commander, rabbit)
+    //new streams.Ticker(broker, commander)
+    new streams.Kline(broker, commander)
+    //new streams.User(broker, commander, rabbit)
 
-new Dealer(broker, {
-    port: 9050,
-    pingInterval: 1000,
-    closingTimeout: 10000
+    const dealer = new Dealer(broker, {
+        port: parseInt(process.env.PORT) || 9050
+    })
+    dealer.on('listening', () => {
+        console.log('Listening on:', dealer.options.port.toString().green)
+    })
 })

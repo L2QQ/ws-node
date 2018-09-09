@@ -1,17 +1,4 @@
 const Big = require('big.js')
-const jayson = require('jayson/promise')
-const amqp = require('amqplib')
-
-/*
-Wait user event
-Take valid listen key
-Load user
-send user to listen key
-
-Wait order
-Take valid listen key
-Send order to listen key
-*/
 
 // https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md
 module.exports = class UserStream {
@@ -19,10 +6,31 @@ module.exports = class UserStream {
         this.broker = broker
         this.commander = commander
         this.rabbit = rabbit
+
+        this.rabbit.on('order', this.onOrder.bind(this))
+        this.rabbit.on('account', this.onAccount.bind(this))
+    }
+
+    onOrder(order) {
+        this.commander.uds.listenKeyForUserId(order.userId).then((listenKey) => {
+            if (listenKey) {
+                this.publishOrderUpdate(listenKey, order)
+            }
+        })
+    }
+
+    onAccount(account) {
+        this.commander.uds.listenKeyForUserId(account.id).then((listenKey) => {
+            if (listenKey) {
+                this.commander.accounts.account(account.id).then((account) => {
+                    this.publishAccountUpdate(listenKey, account)
+                })
+            }
+        })
     }
 
     // https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#account-update
-    publishAccountUpdate(listenKey) {
+    publishAccountUpdate(listenKey, account) {
         this.broker.publish(listenKey, {
             e: 'outboundAccountInfo',
             E: Date.now(),
@@ -45,7 +53,7 @@ module.exports = class UserStream {
     }
 
     // https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#order-update
-    publishOrderUpdate(listenKey) {
+    publishOrderUpdate(listenKey, order) {
         this.broker.publish(listenKey, {
             e: 'executionReport',
             E: Date.now(),
@@ -78,9 +86,5 @@ module.exports = class UserStream {
             O: Date.now(),
             Z: '0'
         })
-    }
-
-    account(userId) {
-
     }
 }

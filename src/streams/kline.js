@@ -1,5 +1,6 @@
 module.exports = class KlineStream {
-    constructor(broker) {
+    constructor(broker, commander) {
         this.broker = broker
+        this.commander = commander
     }
 }

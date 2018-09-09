@@ -7,11 +7,8 @@ module.exports = class TickerStream {
         this.commander = commander
         this.lastTinyMiniTickers = {}
         this.lastTinyFullTickers = {}
-        this.start()
-    }
 
-    start() {
-        this.interval = setInterval(() => {
+        setInterval(() => {
             this.tick()
         }, 1000)
     }
@@ -19,7 +16,7 @@ module.exports = class TickerStream {
     tick() {
         this.commander.config().then((config) => {
             Promise.all(config.markets.map((market) => {
-                return this.ticker(market.symbol).then((ticker) => {
+                return this.commander.tickers.ticker(market.symbol).then((ticker) => {
                     const mini = this.miniTicker(market, ticker)
                     const full = this.fullTicker(market, ticker)
                     this.publishMiniTicker(mini)
@@ -130,20 +127,5 @@ module.exports = class TickerStream {
             return JSON.stringify(last) !== JSON.stringify(tiny)
         })
         this.broker.publish('!ticker@arr', tickers)
-    }
-
-    ticker(symbol, port) {
-        return Promise.resolve({
-            
-        })
-        /*
-        const client = jayson.client.http(`http://localhost:${port}`)
-        return client.request('ticker', { symbol: symbol }).then((res) => {
-            if (res.error) {
-                throw res.error
-            }
-            return res.result
-        })
-        */
     }
 }

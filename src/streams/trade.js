@@ -5,7 +5,11 @@ module.exports = class TradeStream {
         this.broker = broker
         this.commander = commander
         this.rabbit = rabbit
-        this.rabbit.on('trade', trade => this.publish(trade))
+        this.rabbit.on('trade', this.onTrade.bind(this))
+    }
+
+    onTrade(trade) {
+        this.publish(trade)
     }
 
     // https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#trade-streams
