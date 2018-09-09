@@ -1,7 +1,8 @@
 const colors = require('colors')
 
-const WebSocket = require('ws') 
-const ws = new WebSocket('ws://localhost:9050/bingo')
+// Test ws streams
+const WebSocket = require('ws')
+const ws = new WebSocket('ws://localhost:9050/stream?streams=ethusdt@trade/ethusdt@depth20')
 
 ws.on('close', (code, reason) => {
     console.log('🐒 close'.bold)
@@ -19,6 +20,8 @@ ws.on('upgrade', (req) => {
 
 ws.on('message', (data) => {
     console.log('🐒 message'.bold)
+    console.log(data)
+    console.log(typeof data)
 })
 
 ws.on('open', () => {

@@ -1,44 +1,38 @@
-const colors = require('colors')
-const url = require('url')
-const querystring = require('querystring')
-
-const WebSocket = require('ws')
-
-const wss = new WebSocket.Server({
-    port: 9050
-})
-
 //const CLOSING_TIMEOUT = 24 * 60 * 60 * 1000     // 24 hours
 //const PING_INTERVAL = 3 * 60 * 1000     // 3 minutes
 
 const CLOSING_TIMEOUT = 10000
 const PING_INTERVAL = 1000
 
+const Broker = require('./src/broker')
+const broker = new Broker()
+
+const Commander = require('./src/commander')
+const commander = new Commander(9040)
+
+const Trades = require('./src/trades')
+const trades = new Trades()
+
+const DepthStream = require('./src/streams/depth')
+const TradeStream = require('./src/streams/trade')
+const KlineStream = require('./src/streams/kline')
+const TickerStream = require('./src/streams/ticker')
+const UserStream = require('./src/streams/user')
+
+new DepthStream(broker, commander)
+new TradeStream(broker, commander, trades)
+new KlineStream(broker, commander, trades)
+new TickerStream(broker, commander, trades)
+new UserStream(broker, commander, trades)
+
 /**
- * Pools
+ * WS Server
  */
 
-var POOLS = {}
-
-function broadcast(stream, data) {
-    if (!POOLS[stream]) {
-        return
-    }
-
-    POOLS[stream].forEach((ws) => {
-        if (ws.readyState === WebSocket.OPEN) {
-            if (ws.isCombined) {
-                ws.send(JSON.stringify({ stream, data }))
-            } else {
-                ws.send(JSON.stringify(data))
-            }
-        }
-    })
-}
-
-/**
- * Listening
- */
+const WebSocket = require('ws')
+const wss = new WebSocket.Server({
+    port: 9050
+})
 
 wss.on('connection', (ws, req) => {
     setupAutoClosing(ws)
@@ -46,7 +40,7 @@ wss.on('connection', (ws, req) => {
     setupStreams(ws, req)
 })
 
-wss.on('listening', (ws) => {
+wss.on('listening', () => {
     console.log(`Listening on ${wss.options.port}`)
 })
 
@@ -54,38 +48,18 @@ wss.on('listening', (ws) => {
  * Parse streams
  */
 
+const utils = require('./src/utils')
+
 function setupStreams(ws, req) {
-    const parsed = url.parse(req.url)
-    const [, type, stream] = (parsed.pathname || '').split('/')
-
-    if (type === 'ws') {
-        if (stream) {
-            ws.isCombined = false
-            ws.streams = [stream]
-        } else {
-            return ws.close(1008, 'Illegal format ws or stream')
-        }
-    } else if (type === 'stream') {
-        const streams = (querystring.parse(parsed.query)['streams'] || '').split('/').filter(Boolean)
-        if (streams.length > 0) {
-            ws.isCombined = true
-            ws.streams = [...new Set(streams)]
-        } else {
-            return ws.close(1008, 'Illegal format ws or stream')
-        }
-    } else {
-        return ws.close(1008, 'Illegal format ws or stream')
+    try {
+        Object.assign(ws, utils.parseStreams(req.url))
+        broker.subscribe(ws)
+        ws.on('close', () => {
+            broker.unsubscribe(ws)
+        })
+    } catch {
+        ws.close(1008, 'Illegal format ws or stream')
     }
-
-    for (const stream of ws.streams) {
-        (POOLS[stream] || (POOLS[stream] = new Set())).add(ws)
-    }
-
-    ws.on('close', () => {
-        for (const stream of ws.streams) {
-            POOLS[stream].delete(ws)
-        }
-    })
 }
 
 /**
@@ -123,9 +97,3 @@ setInterval(() => {
         ws.ping()
     })
 }, PING_INTERVAL)
-
-/**
- * Streams
- */
-
- 
