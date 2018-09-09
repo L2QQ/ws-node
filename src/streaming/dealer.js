@@ -1,8 +1,10 @@
+const EventEmitter = require('events')
 const WebSocket = require('ws')
 const utils = require('./utils')
 
-module.exports = class Dealer {
+module.exports = class Dealer extends EventEmitter {
     constructor(broker, options) {
+        super()
         options = Object.assign({
             port: null,
             pingInterval: 3 * 60 * 1000,            // 3 minutes
@@ -16,6 +18,10 @@ module.exports = class Dealer {
             port: options.port
         })
         this.wss.on('connection', this.onConnection.bind(this))
+
+        this.wss.on('listening', () => {
+            this.emit('listening')
+        })
 
         setInterval(() => {
             this.pingClients()
