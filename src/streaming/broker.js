@@ -18,6 +18,8 @@ module.exports = class Broker {
     }
 
     publish(channel, data) {
+        console.log(channel)
+
         if (!this.channels[channel]) {
             return
         }

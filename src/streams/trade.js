@@ -1,11 +1,11 @@
 const Big = require('big.js')
 
 module.exports = class TradeStream {
-    constructor(broker, commander, trades) {
+    constructor(broker, commander, rabbit) {
         this.broker = broker
         this.commander = commander
-        this.trades = trades
-        this.trades.on('trade', trade => this.publish(trade))
+        this.rabbit = rabbit
+        this.rabbit.on('trade', trade => this.publish(trade))
     }
 
     // https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md#trade-streams

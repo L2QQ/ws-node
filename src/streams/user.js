@@ -15,8 +15,10 @@ Send order to listen key
 
 // https://github.com/binance-exchange/binance-official-api-docs/blob/master/web-socket-streams.md
 module.exports = class UserStream {
-    constructor(broker) {
+    constructor(broker, commander, rabbit) {
         this.broker = broker
+        this.commander = commander
+        this.rabbit = rabbit
     }
 
     // https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#account-update
