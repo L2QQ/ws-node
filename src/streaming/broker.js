@@ -3,6 +3,7 @@ const WebSocket = require('ws')
 module.exports = class Broker {
     constructor() {
         this.channels = {}
+        this.sentCount = 0
     }
 
     subscribe(ws) {
@@ -29,6 +30,7 @@ module.exports = class Broker {
                 } else {
                     ws.send(JSON.stringify(data))
                 }
+                this.sentCount++
             }
         })
     }

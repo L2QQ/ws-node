@@ -4,19 +4,14 @@ console.log('🐙 WS Server'.bold)
 const { Broker, Dealer } = require('./src/streaming')
 const streams = require('./src/streams')
 
-const Commander = require('../services-node/src/services/wrappers/commander')
-const Market = require('../services-node/src/services/wrappers/market')
-const Account = require('../services-node/src/services/wrappers/account')
-const UDS = require('../services-node/src/services/wrappers/uds')
-const Ticker = require('../services-node/src/services/wrappers/ticker')
-const OHLCV = require('../services-node/src/services/wrappers/ohlcv')
-
+const { Commander, Market, Account, UDS, Ticker, OHLCV } = require('../services-node/src/services/wrappers')
 const Rabbit = require('../services-node/src/services/rabbit')
 
 const commander = new Commander(parseInt(process.env.COMMANDER_PORT) || 9040)
 commander.on('config', (config) => {
     console.log('Config updated'.cyan)
 
+    commander.services = {}
     commander.services.account = new Account(config.services.account.port)
     commander.services.market = new Market(config.services.market.port)
     commander.services.uds = new UDS(config.services.uds.port)
@@ -40,6 +35,13 @@ commander.once('config', (config) => {
         port: parseInt(process.env.PORT) || 9050
     })
     dealer.on('listening', () => {
-        console.log('Listening on:', dealer.options.port.toString().green)
+        console.log('Listening on:', dealer.options.port.toString().green, '\n')
     })
+
+    setInterval(() => {
+        console.log(new Date())
+        console.log('Sent messages:', broker.sentCount)
+        console.log()
+        broker.sentCount = 0
+    }, 5000)
 })
