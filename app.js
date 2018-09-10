@@ -4,14 +4,14 @@ console.log('🐙 WS Server'.bold)
 const { Broker, Dealer } = require('./src/streaming')
 const streams = require('./src/streams')
 
-const Commander = require('../commander-node/src/services/wrappers/commander')
-const Market = require('../commander-node/src/services/wrappers/market')
-const Account = require('../commander-node/src/services/wrappers/account')
-const UDS = require('../commander-node/src/services/wrappers/uds')
-const Ticker = require('../commander-node/src/services/wrappers/ticker')
-const OHLCV = require('../commander-node/src/services/wrappers/ohlcv')
+const Commander = require('../services-node/src/services/wrappers/commander')
+const Market = require('../services-node/src/services/wrappers/market')
+const Account = require('../services-node/src/services/wrappers/account')
+const UDS = require('../services-node/src/services/wrappers/uds')
+const Ticker = require('../services-node/src/services/wrappers/ticker')
+const OHLCV = require('../services-node/src/services/wrappers/ohlcv')
 
-const Rabbit = require('../commander-node/src/services/rabbit')
+const Rabbit = require('../services-node/src/services/rabbit')
 
 const commander = new Commander(parseInt(process.env.COMMANDER_PORT) || 9040)
 commander.on('config', (config) => {
