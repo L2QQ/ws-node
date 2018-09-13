@@ -4,7 +4,7 @@ console.log('🐙 WS Server'.bold)
 const { Broker, Dealer } = require('./src/streaming')
 const streams = require('./src/streams')
 
-const { Commander, Market, Account, UDS, Ticker, OHLCV } = require('../services-node/src/services/wrappers')
+const { Commander, Market, Account, UDS, Ticker, OHLCV } = require('../services-node/src/wrappers')
 const Rabbit = require('../services-node/src/services/rabbit')
 
 const commander = new Commander(parseInt(process.env.COMMANDER_PORT) || 9040)
@@ -20,7 +20,7 @@ commander.on('config', (config) => {
 })
 
 commander.once('config', (config) => {
-    console.log('Took config once'.red)
+    console.log('Took config'.red)
 
     const broker = new Broker()
     const rabbit = new Rabbit()

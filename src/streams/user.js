@@ -10,27 +10,20 @@ module.exports = class UserStream {
         this.rabbit.on('account', this.onAccount.bind(this))
     }
 
-    onOrder(order) {
-        this.commander.services.uds.listenKey(order.userId).then((listenKey) => {
-            if (listenKey) {
-                this.publishOrderUpdate(listenKey, order)
-            }
-        })
+    async onOrder(order) {
+        const listenKeys = await this.commander.services.uds.listenKeys(order.userId)
+        this.publishOrderUpdate(listenKeys, order)
     }
 
-    onAccount(account) {
-        this.commander.services.uds.listenKey(account.id).then((listenKey) => {
-            if (listenKey) {
-                this.commander.services.account.account(account.id).then((account) => {
-                    this.publishAccountUpdate(listenKey, account)
-                })
-            }
-        })
+    async onAccount(account) {
+        const account = await this.commander.services.account.account(account.id)
+        const listenKeys = await this.commander.services.uds.listenKeys(account.id) 
+        this.publishAccountUpdate(listenKeys, account)
     }
 
     // https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#account-update
-    publishAccountUpdate(listenKey, account) {
-        this.broker.publish(listenKey, {
+    publishAccountUpdate(listenKeys, account) {
+        account = {
             e: 'outboundAccountInfo',
             E: Date.now(),
             m: account.makerCommission,
@@ -46,11 +39,14 @@ module.exports = class UserStream {
                 f: Big(b.free).toFixed(8),
                 l: Big(b.locked).toFixed(8)
             }))
+        }
+        listenKeys.forEach(listenKey => {
+            this.broker.publish(listenKey, account)
         })
     }
 
     // https://github.com/binance-exchange/binance-official-api-docs/blob/master/user-data-stream.md#order-update
-    publishOrderUpdate(listenKey, order) {
+    publishOrderUpdate(listenKeys, order) {
         this.broker.publish(listenKey, {
             e: 'executionReport',
             E: Date.now(),

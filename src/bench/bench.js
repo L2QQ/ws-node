@@ -1,6 +1,6 @@
 const colors = require('colors')
 
-const Commander = require('../../../services-node/src/services/wrappers/commander')
+const Commander = require('../../../services-node/src/wrappers/commander')
 const commander = new Commander(parseInt(process.env.COMMANDER_PORT) || 9040)
 commander.once('config', (config) => {
     const symbols = config.markets.map(m => m.symbol)
