@@ -18,7 +18,7 @@ ws.on('upgrade', (req) => {
 
 ws.on('message', (data) => {
     const json = JSON.parse(data)
-    console.log(json.data)
+    console.log(json)
 })
 
 ws.on('open', () => {
