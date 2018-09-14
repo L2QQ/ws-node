@@ -5,7 +5,7 @@ const { Broker, Dealer } = require('./src/streaming')
 const streams = require('./src/streams')
 
 const { Commander, Market, Account, UDS, Ticker, OHLCV } = require('../services-node/src/wrappers')
-const Rabbit = require('../services-node/src/services/rabbit')
+const Rabbit = require('../services-node/src/rabbit/rabbit')
 
 const commander = new Commander(parseInt(process.env.COMMANDER_PORT) || 9040)
 commander.on('config', (config) => {
