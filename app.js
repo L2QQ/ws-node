@@ -30,6 +30,7 @@ commander.once('config', (config) => {
     new streams.Ticker(broker, commander)
     new streams.Kline(broker, commander)
     new streams.User(broker, commander, rabbit)
+    new streams.Time(broker)
 
     const dealer = new Dealer(broker, {
         port: parseInt(process.env.PORT) || 9050
