@@ -1,5 +1,8 @@
 require('colors')
 console.log('🐙 WS Server'.bold)
+if (process.env.NODE_ENV === 'production') {
+    console.log('In production'.bold.cyan)
+}
 
 const { Broker, Dealer } = require('./src/streaming')
 const streams = require('./src/streams')
@@ -9,7 +12,8 @@ const Rabbit = require('../services-node/src/rabbit/rabbit')
 
 const commander = new Commander(parseInt(process.env.COMMANDER_PORT) || 9040)
 commander.on('config', (config) => {
-    console.log('Config updated'.cyan)
+    console.log('Config updated')
+    console.log('Update services wrappers')
 
     commander.services = {}
     commander.services.account = new Account(config.services.account.port)
@@ -20,8 +24,7 @@ commander.on('config', (config) => {
 })
 
 commander.once('config', (config) => {
-    console.log('Took config'.red)
-
+    console.log('Create streams')
     const broker = new Broker()
     const rabbit = new Rabbit()
 
@@ -36,13 +39,6 @@ commander.once('config', (config) => {
         port: parseInt(process.env.PORT) || 9050
     })
     dealer.on('listening', () => {
-        console.log('Listening on:', dealer.options.port.toString().green, '\n')
+        console.log(`Listening on: ${dealer.options.port}`.green.bold)
     })
-
-    setInterval(() => {
-        console.log(new Date())
-        console.log('Sent messages:', broker.sentCount)
-        console.log()
-        broker.sentCount = 0
-    }, 5000)
 })

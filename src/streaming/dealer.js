@@ -33,6 +33,7 @@ module.exports = class Dealer extends EventEmitter {
             this.parseStreams(ws, req)
             this.autoClose(ws)
             this.aliveOnPong(ws)
+            console.log('Connection for:', ws.streams)
         } catch {
             ws.close(1008, 'Illegal format ws or stream')
         }
