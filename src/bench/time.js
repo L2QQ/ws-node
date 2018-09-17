@@ -1,6 +1,7 @@
 require('colors')
 const WebSocket = require('ws')
-const ws = new WebSocket('ws://localhost:9050/ws/time')
+//const ws = new WebSocket('ws://localhost:9050/ws/time')
+const ws = new WebSocket('ws://142.93.32.105/ws/time')
 
 ws.on('close', (code, reason) => {
     console.log('close'.bold)

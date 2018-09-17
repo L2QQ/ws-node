@@ -30,7 +30,7 @@ commander.once('config', (config) => {
 
     new streams.Depth(broker, commander)
     new streams.Trade(broker, commander, rabbit)
-    new streams.Ticker(broker, commander)
+    //new streams.Ticker(broker, commander)
     new streams.Kline(broker, commander)
     new streams.User(broker, commander, rabbit)
     new streams.Time(broker)
